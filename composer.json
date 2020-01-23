@@ -1,0 +1,23 @@
+{
+	"name": "bdk/backtrace",
+	"description": "Backtrace utils",
+	"keywords": ["backtrace","trace"],
+	"homepage": "http://github.com/bkdotcom/Backtrace",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Brad Kent",
+			"email": "bkfake-github@yahoo.com",
+			"homepage": "http://www.bradkent.com/",
+			"role": "Developer"
+		}
+	],
+	"autoload": {
+		"classmap": [
+			"src/Backtrace.php"
+		]
+	},
+	"require": {
+		"php": ">=5.4.0"
+	}
+}
