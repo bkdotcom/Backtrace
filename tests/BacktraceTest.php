@@ -18,18 +18,18 @@ class BacktraceTest extends TestCase
     {
         $callerInfo = $this->getCallerInfoHelper();
         $this->assertSame(array(
-            'file' => __FILE__,
-            'line' => __LINE__ - 3,
-            'function' => __FUNCTION__,
             'class' => __CLASS__,
+            'file' => __FILE__,
+            'function' => __FUNCTION__,
+            'line' => __LINE__ - 5,
             'type' => '->',
         ), $callerInfo);
         $callerInfo = call_user_func(array($this, 'getCallerInfoHelper'));
         $this->assertSame(array(
-            'file' => __FILE__,
-            'line' => __LINE__ - 3,
-            'function' => __FUNCTION__,
             'class' => __CLASS__,
+            'file' => __FILE__,
+            'function' => __FUNCTION__,
+            'line' => __LINE__ - 5,
             'type' => '->',
         ), $callerInfo);
     }
