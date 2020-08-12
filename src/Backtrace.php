@@ -456,6 +456,10 @@ class Backtrace
                 $function = isset($frame['function'])
                     ? $frame['function']
                     : null;
+                if (!isset($frame['type']) && isset($frame['class'])) {
+                    // XDebug pre 2.1.1 doesn't set the call type key http://bugs.xdebug.org/view.php?id=695
+                    $stack[$i]['type'] = 'static';
+                }
                 if ($function === '__get') {
                     // wrong file!
                     $prev = $stack[$i - 1];
