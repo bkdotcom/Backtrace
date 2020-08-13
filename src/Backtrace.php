@@ -28,8 +28,8 @@ class Backtrace
      * @var array
      */
     private static $internalClasses = array(
-        'classes' => array(),
-        'regex' => '/^\b$/',  // start with a regex that will never match
+        'classes' => array(__CLASS__),
+        'regex' => '/^bdk\\\Backtrace\b$/',
     );
 
     /**
@@ -114,7 +114,7 @@ class Backtrace
     }
 
     /**
-     * add a new namespace, classname or filepath to be used to determine when to
+     * add a new namespace or classname to be used to determine when to
      * stop iterrating over the backtrace when determining calling info
      *
      * @param array|string $class classname(s)
