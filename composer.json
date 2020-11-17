@@ -17,6 +17,11 @@
 			"src/Backtrace.php"
 		]
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"bdk\\BacktraceTests\\": "tests/"
+		}
+	},
 	"require": {
 		"php": ">=5.4.0"
 	}

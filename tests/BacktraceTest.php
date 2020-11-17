@@ -1,5 +1,7 @@
 <?php
 
+namespace bdk\BacktraceTests;
+
 use bdk\Backtrace;
 use PHPUnit\Framework\TestCase;
 
@@ -8,6 +10,20 @@ use PHPUnit\Framework\TestCase;
  */
 class BacktraceTest extends TestCase
 {
+
+    /**
+     * Test
+     *
+     * @return void
+     */
+    public function testGet()
+    {
+        $line = __LINE__ + 1;
+        $backtrace = Backtrace::get(null, 3);
+        $this->assertCount(3, $backtrace);
+        $this->assertSame(__FILE__, $backtrace[0]['file']);
+        $this->assertSame($line, $backtrace[0]['line']);
+    }
 
     /**
      * Test
@@ -24,7 +40,7 @@ class BacktraceTest extends TestCase
             'line' => __LINE__ - 5,
             'type' => '->',
         ), $callerInfo);
-        $callerInfo = call_user_func(array($this, 'getCallerInfoHelper'));
+        $callerInfo = \call_user_func(array($this, 'getCallerInfoHelper'));
         $this->assertSame(array(
             'class' => __CLASS__,
             'file' => __FILE__,
@@ -36,6 +52,6 @@ class BacktraceTest extends TestCase
 
     private function getCallerInfoHelper()
     {
-        return \bdk\Backtrace::getCallerInfo();
+        return Backtrace::getCallerInfo();
     }
 }
