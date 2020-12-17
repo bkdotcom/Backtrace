@@ -42,13 +42,13 @@ class Backtrace
      * @param int                   $limit     limit the number of stack frames returned.
      * @param \Exception|\Throwable $exception (optional) Exception from which to get backtrace
      *
-     * @return array|false
+     * @return array
      */
     public static function get($options = 0, $limit = 0, $exception = null)
     {
         $backtrace = self::getBacktrace($options, $limit, $exception);
         if (empty($backtrace)) {
-            return $backtrace;
+            return array();
         }
         // don't incl args passed to trace()
         $backtrace[0]['args'] = array();
@@ -197,6 +197,9 @@ class Backtrace
      */
     private static function getBacktrace($options = 0, $limit = 0, $exception = null)
     {
+        if ($exception instanceof \ParseError) {
+            return array();
+        }
         if ($exception) {
             $backtrace = $exception->getTrace();
             \array_unshift($backtrace, array(
@@ -207,15 +210,12 @@ class Backtrace
             return $backtrace;
         }
         $options = static::translateOptions($options);
-        $limit = $limit
-            ? $limit + 2
-            : 0;
-        $backtrace = \debug_backtrace($options, $limit);
+        $backtrace = \debug_backtrace($options, $limit ? $limit + 2 : 0);
         if (\array_key_exists('file', \end($backtrace)) === true) {
             // We're NOT in shutdown
             $backtrace = static::normalize($backtrace);
             $backtrace = static::removeInternalFrames($backtrace);
-            return $backtrace;
+            return \array_slice($backtrace, 0, $limit);
         }
         /*
             We appear to be in shutdown - use xdebug
@@ -227,6 +227,7 @@ class Backtrace
         $backtrace = \array_reverse($backtrace);
         $backtrace = static::normalize($backtrace);
         $backtrace = static::removeInternalFrames($backtrace);
+        $backtrace = \array_slice($backtrace, 0, $limit);
         $error = \error_get_last();
         if ($error !== null && $error['type'] & (E_ERROR | E_PARSE | E_COMPILE_ERROR | E_CORE_ERROR)) {
             // xdebug_get_function_stack doesn't include the frame that triggered the error!
@@ -302,6 +303,26 @@ class Backtrace
             return true;
         }
         return $class === 'ReflectionMethod' && \in_array($frame['function'], array('invoke','invokeArgs'));
+    }
+
+    /**
+     * Check if `xdebug_get_function_stack()` is available for use
+     *
+     * @return bool
+     */
+    private static function isXdebugFuncStackAvail()
+    {
+        if (\extension_loaded('xdebug') === false) {
+            return false;
+        }
+        $xdebugVer = \phpversion('xdebug');
+        if (\version_compare($xdebugVer, '3.0.0', '>=')) {
+            $mode = \ini_get('xdebug.mode') ?: 'off';
+            if (\strpos($mode, 'develop') === false) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -466,7 +487,7 @@ class Backtrace
      */
     private static function xdebugGetFunctionStack()
     {
-        if (\extension_loaded('xdebug') === false) {
+        if (self::isXdebugFuncStackAvail() === false) {
             return false;
         }
         $stack = \xdebug_get_function_stack();
