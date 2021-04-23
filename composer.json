@@ -4,6 +4,10 @@
 	"keywords": ["backtrace","trace"],
 	"homepage": "http://github.com/bkdotcom/Backtrace",
 	"license": "MIT",
+	"support": {
+		"issues": "https://github.com/bkdotcom/Backtrace/issues",
+		"source": "https://github.com/bkdotcom/Backtrace"
+	},
 	"authors": [
 		{
 			"name": "Brad Kent",

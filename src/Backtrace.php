@@ -4,8 +4,8 @@
  * @package   Backtrace
  * @author    Brad Kent <bkfake-github@yahoo.com>
  * @license   http://opensource.org/licenses/MIT MIT
- * @copyright 2020 Brad Kent
- * @version   v1
+ * @copyright 2020-2021 Brad Kent
+ * @version   v2.0.1
  * @link      http://www.github.com/bkdotcom/Backtrace
  */
 
@@ -306,9 +306,6 @@ class Backtrace
             ? $frame['class']
             : null;
         if (\preg_match(static::$internalClasses['regex'], $class)) {
-            return true;
-        }
-        if ($frame['function'] === '{closure}') {
             return true;
         }
         if (\in_array($frame['function'], array('call_user_func', 'call_user_func_array'))) {
