@@ -12,14 +12,4 @@ foreach ($classMap as $old => $new) {
     }
 }
 
-$includes = array(
-    __DIR__ . '/../src/Backtrace.php',
-    /*
-	__DIR__ . '/../src/CssXpath.php',
-	__DIR__ . '/../src/CssSelect.php',
-	__DIR__ . '/../src/DOMTestCase.php',
-    */
-);
-foreach ($includes as $file) {
-	require $file;
-}
+require __DIR__ . '/../vendor/autoload.php';

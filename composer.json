@@ -19,7 +19,10 @@
 	"autoload": {
 		"classmap": [
 			"src/Backtrace.php"
-		]
+		],
+		"psr-4": {
+			"bdk\\Backtrace\\": "src/"
+		}
 	},
 	"autoload-dev": {
 		"psr-4": {
@@ -28,5 +31,16 @@
 	},
 	"require": {
 		"php": ">=5.4.0"
+	},
+	"require-dev": {
+		"phpunit/phpunit": ">=4.8.35"
+	},
+	"scripts": {
+		"test" : [
+			"vendor/bin/phpunit -v"
+		],
+		"coverage" : [
+			"vendor/bin/phpunit -v --coverage-clover coverage/clover.xml --coverage-html coverage/html"
+		]
 	}
 }
