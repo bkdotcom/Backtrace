@@ -231,7 +231,7 @@ class BacktraceTest extends TestCase
     public function testIsXdebugFuncStackAvail()
     {
         $isAvail = Backtrace::isXdebugFuncStackAvail();
-        $this->assertTrue($isAvail);
+        $this->assertIsBool($isAvail);
     }
 
     private function getCallerInfoHelper()
