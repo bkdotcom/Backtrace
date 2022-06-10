@@ -5,6 +5,7 @@ namespace bdk\BacktraceTests;
 use bdk\Backtrace;
 use bdk\BacktraceTests\Fixture\ChildObj;
 use bdk\BacktraceTests\Fixture\ParentObj;
+use bdk\BacktraceTests\PolyFill\AssertionTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,6 +17,8 @@ use PHPUnit\Framework\TestCase;
  */
 class BacktraceTest extends TestCase
 {
+    use AssertionTrait;
+
     public function testAddInternalClass()
     {
         $internalClassesRef = new \ReflectionProperty('bdk\\Backtrace\\SkipInternal', 'internalClasses');
@@ -109,6 +112,9 @@ class BacktraceTest extends TestCase
 
     public function testGetFromExceptionParseError()
     {
+        if (\class_exists('ParseError') === false) {
+            $this->markTestSkipped('ParseError class does not available');
+        }
         $exception = new \ParseError('parse error');
         $backtrace = Backtrace::get(null, 3, $exception);
         $this->assertCount(0, $backtrace);

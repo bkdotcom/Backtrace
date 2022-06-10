@@ -13,3 +13,6 @@ foreach ($classMap as $old => $new) {
 }
 
 require __DIR__ . '/../vendor/autoload.php';
+
+$modifyTests = new \bdk\BacktraceTests\ModifyTests();
+$modifyTests->modify(__DIR__);
