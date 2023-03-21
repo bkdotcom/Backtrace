@@ -11,5 +11,5 @@ This utility uses xdebug when necessary and normalizes the results.
 ## Tests / Quality
 
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-333333.svg)
-![Build Status](https://img.shields.io/github/workflow/status/bkdotcom/Backtrace/PHPUnit.svg?logo=github)
+![Build Status](https://img.shields.io/github/actions/workflow/status/bkdotcom/Backtrace/phpunit.yml.svg?logo=github)
 [![Maintainability](https://img.shields.io/codeclimate/maintainability/bkdotcom/Backtrace.svg?logo=codeclimate)](https://codeclimate.com/github/bkdotcom/Backtrace)
