@@ -52,7 +52,7 @@ class SkipInternal
         if (\is_int($level) === false) {
             throw new InvalidArgumentException(\sprintf('level must be an integer'));
         }
-        if (!\is_array($classes)) {
+        if (\is_array($classes) === false) {
             $classes = array($classes => $level);
         }
         foreach ($classes as $key => $val) {
@@ -131,7 +131,7 @@ class SkipInternal
             }
         }
         self::$internalClasses['regex'] = '/^('
-            . \implode('|', \array_map(function ($class) {
+            . \implode('|', \array_map(static function ($class) {
                 return \preg_quote($class, '/');
             }, $classes))
             . ')\b/';
@@ -181,13 +181,16 @@ class SkipInternal
         $class = null;
         if ($frame['class']) {
             $class = $frame['class'];
-        } elseif (\preg_match('/^(.+)(::|->)/', $frame['function'], $matches)) {
+        } elseif (\preg_match('/^(.+)(::|->)/', (string) $frame['function'], $matches)) {
             $class = $matches[1];
         }
         if (!$class) {
             return Normalizer::isInternal($frame);
         }
         if (\preg_match(static::$internalClasses['regex'], $class)) {
+            return true;
+        }
+        if (\in_array($frame['function'], array('__call', '__callStatic'), true)) {
             return true;
         }
         if ($class === 'ReflectionMethod' && \in_array($frame['function'], array('invoke','invokeArgs'), true)) {
