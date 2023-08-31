@@ -113,7 +113,9 @@ class SkipInternalTest extends TestCase
 
         $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         $trace = Normalizer::normalize($trace);
+        var_dump($trace);
         $trace = SkipInternal::removeInternalFrames($trace);
+        var_dump($trace);
 
         self::assertSame(__CLASS__ . '->' . __FUNCTION__, $trace[0]['function']);
     }
