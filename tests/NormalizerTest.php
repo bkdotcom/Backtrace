@@ -18,13 +18,6 @@ class NormalizerTest extends TestCase
         func1();
 
         $trace = $GLOBALS['debug_backtrace'];
-        /*
-        \bdk\Debug::varDump('debug_backtrace', \array_map(function ($frame) {
-            ksort($frame);
-            unset($frame['object']);
-            return $frame;
-        }, \array_slice($trace, 0, 6)));
-        */
         $trace = Normalizer::normalize($trace);
         self::assertSame('{closure}', $trace[0]['function']);
         self::assertSame('bdk\BacktraceTests\func2', $trace[1]['function']);
@@ -38,14 +31,8 @@ class NormalizerTest extends TestCase
         self::assertSame('bdk\BacktraceTests\func1', $trace[2]['function']);
 
         $trace = \array_reverse($GLOBALS['xdebug_trace']);
-        /*
-        \bdk\Debug::varDump('xdebug_get_function_stack', \array_map(function ($frame) {
-            ksort($frame);
-            // unset($frame['args']);
-            return $frame;
-        }, \array_slice($trace, 0, 6)));
-        */
         $trace = Normalizer::normalize($trace);
+
         self::assertSame('{closure}', $trace[0]['function']);
         self::assertSame('bdk\BacktraceTests\func2', $trace[1]['function']);
         self::assertSame(array(
@@ -65,13 +52,6 @@ class NormalizerTest extends TestCase
         require __DIR__ . '/Fixture/include.php';
 
         $trace = $GLOBALS['debug_backtrace'];
-        /*
-        \bdk\Debug::varDump('debug_backtrace', \array_map(function ($frame) {
-            ksort($frame);
-            unset($frame['object']);
-            return $frame;
-        }, \array_slice($trace, 0, 6)));
-        */
         $trace = Normalizer::normalize($trace);
         self::assertSame('{closure}', $trace[0]['function']);
         self::assertSame('func4', $trace[1]['function']);
@@ -87,13 +67,6 @@ class NormalizerTest extends TestCase
         self::assertSame('require', $trace[4]['function']);
 
         $trace = \array_reverse($GLOBALS['xdebug_trace']);
-        /*
-        \bdk\Debug::varDump('xdebug_get_function_stack', \array_map(function ($frame) {
-            ksort($frame);
-            // unset($frame['args']);
-            return $frame;
-        }, \array_slice($trace, 0, 6)));
-        */
         $trace = Normalizer::normalize($trace);
         self::assertSame('{closure}', $trace[0]['function']);
         self::assertSame('func4', $trace[1]['function']);

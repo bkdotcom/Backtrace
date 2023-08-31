@@ -19,6 +19,14 @@ class BacktraceTest extends TestCase
 {
     use AssertionTrait;
 
+    public static function setUpBeforeClass(): void
+    {
+        $xdebugVer = \phpversion('xdebug');
+        if (\version_compare($xdebugVer, '3.0.0', '<')) {
+            \ini_set('xdebug.collect_params', '1');
+        }
+    }
+
     public function testAddInternalClass()
     {
         Backtrace::addInternalClass('hello');
@@ -95,7 +103,7 @@ class BacktraceTest extends TestCase
     public function testGetFromExceptionParseError()
     {
         if (\class_exists('ParseError') === false) {
-            $this->markTestSkipped('ParseError class does not available');
+            $this->markTestSkipped('ParseError class not available');
         }
         $exception = new \ParseError('parse error');
         $backtrace = Backtrace::get(null, 3, $exception);
