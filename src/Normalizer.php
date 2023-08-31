@@ -149,7 +149,7 @@ class Normalizer
             'NULL' => null,
             'TRUE' => true,
         );
-        return \array_map(static function ($param) use ($map) {
+        $args = \array_map(static function ($param) use ($map) {
             if ($param[0] === "'") {
                 return \substr(\stripslashes($param), 1, -1);
             }
@@ -160,5 +160,6 @@ class Normalizer
                 ? $map[$param]
                 : $param;
         }, $args);
+        return \array_values($args);
     }
 }
