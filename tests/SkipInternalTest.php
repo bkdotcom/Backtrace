@@ -113,9 +113,20 @@ class SkipInternalTest extends TestCase
 
         $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         $trace = Normalizer::normalize($trace);
-        var_dump($trace);
+
+        // github actions last frame looks like the below
+        $trace[] = array(
+            'args' => array(
+                '/home/runner/work/Backtrace/Backtrace/vendor/phpunit/phpunit/phpunit',
+            ),
+            'evalLine' => null,
+            'file' => '/home/runner/work/Backtrace/Backtrace/vendor/bin/phpunit',
+            'function' => 'include',
+            'line' => 122,
+            'object' => null,
+        );
+
         $trace = SkipInternal::removeInternalFrames($trace);
-        var_dump($trace);
 
         self::assertSame(__CLASS__ . '->' . __FUNCTION__, $trace[0]['function']);
     }

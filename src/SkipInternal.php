@@ -91,6 +91,10 @@ class SkipInternal
         }
         for ($i2 = $i - 1; $i2 > 0; $i2--) {
             $class = self::getClass($backtrace[$i2]);
+            if ($i === $count && $class === null) {
+                // every frame was skipped and first frame is include, or similar
+                break;
+            }
             if (\in_array($class, array(null, 'ReflectionMethod'), true) === false) {
                 // class method (but not ReflectionMethod)
                 break;
