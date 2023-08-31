@@ -62,7 +62,7 @@ class NormalizerTest extends TestCase
     {
         self::assertTrue(true);
 
-        require __DIR__ . '/fixture/include.php';
+        require __DIR__ . '/Fixture/include.php';
 
         $trace = $GLOBALS['debug_backtrace'];
         /*

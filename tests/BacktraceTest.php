@@ -243,6 +243,7 @@ class BacktraceTest extends TestCase
     {
         $line = __LINE__ + 1;
         $stack = Backtrace::xdebugGetFunctionStack();
+        self::assertIsArray($stack);
         self::assertSame(array(
             array(
                 'class' => __CLASS__,
