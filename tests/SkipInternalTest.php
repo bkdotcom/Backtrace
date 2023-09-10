@@ -73,10 +73,10 @@ class SkipInternalTest extends TestCase
 
         self::assertSame(array(
             'args' => array(),
-            'evalLine' => $line,
+            'evalLine' => 3,
             'file' => __FILE__,
             'function' => 'bdk\BacktraceTests\Fixture\SkipMe\Thing->a',
-            'line' => 3,
+            'line' => $line,
         ), \array_diff_key($trace[0], \array_flip(array('object'))));
         self::assertInstanceOf('bdk\BacktraceTests\Fixture\SkipMe\Thing', $trace[0]['object']);
     }
@@ -99,10 +99,10 @@ class SkipInternalTest extends TestCase
 
         self::assertSame(array(
             'args' => array(),
-            'evalLine' => $line,
+            'evalLine' => 3,
             'file' => __FILE__,
             'function' => 'bdk\BacktraceTests\Fixture\Thing2->a',
-            'line' => 3,
+            'line' => $line,
         ), \array_diff_key($trace[0], \array_flip(array('object'))));
         self::assertInstanceOf('bdk\BacktraceTests\Fixture\Thing2', $trace[0]['object']);
     }
@@ -157,7 +157,7 @@ class SkipInternalTest extends TestCase
         self::assertSame('bdk\BacktraceTests\Fixture\Magic->secret', $trace[0]['function']);
     }
 
-    protected static function DumpTrace($label, $trace, $limit = 0)
+    protected static function dumpTrace($label, $trace, $limit = 0)
     {
         if ($limit > 0) {
             $trace = \array_slice($trace, 0, $limit);

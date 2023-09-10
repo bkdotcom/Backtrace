@@ -2,6 +2,7 @@
 
 namespace bdk\BacktraceTests\Fixture;
 
+use bdk\Backtrace;
 use bdk\BacktraceTests\Fixture\SkipMe\Thing;
 
 class Thing2 extends Thing
@@ -18,7 +19,7 @@ class Thing2 extends Thing
 
 	public function c()
 	{
-        $GLOBALS['xdebug_trace'] = \xdebug_get_function_stack();
+        $GLOBALS['xdebug_trace'] = Backtrace::xdebugGetFunctionStack();
         $GLOBALS['debug_backtrace'] = \debug_backtrace();
 	}
 }

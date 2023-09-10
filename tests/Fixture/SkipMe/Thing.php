@@ -2,6 +2,8 @@
 
 namespace bdk\BacktraceTests\Fixture\SkipMe;
 
+use bdk\Backtrace;
+
 class Thing
 {
 	public function a()
@@ -16,7 +18,7 @@ class Thing
 
 	public function c()
 	{
-        $GLOBALS['xdebug_trace'] = \xdebug_get_function_stack();
+        $GLOBALS['xdebug_trace'] = Backtrace::xdebugGetFunctionStack();
         $GLOBALS['debug_backtrace'] = \debug_backtrace();
 	}
 }

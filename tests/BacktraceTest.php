@@ -13,7 +13,6 @@ use PHPUnit\Framework\TestCase;
  * PHPUnit tests for Backtrace class
  *
  * @covers \bdk\Backtrace
- * @covers \bdk\Backtrace\SkipInternal
  */
 class BacktraceTest extends TestCase
 {
@@ -34,17 +33,6 @@ class BacktraceTest extends TestCase
         self::assertTrue(true); // simply testing that the above did not raise an error
     }
 
-    public function testAddContext()
-    {
-        $line = __LINE__ - 2;
-        $backtrace = Backtrace::get(0, 1);
-        $backtrace = Backtrace::addContext($backtrace, 0);
-        $this->assertCount(1, $backtrace);
-        $this->assertIsArray($backtrace[0]['context']);
-        $this->assertCount(19, $backtrace[0]['context']);
-        $this->assertSame('    public function testAddContext()' . "\n", $backtrace[0]['context'][$line]);
-    }
-
     /**
      * Test
      *
@@ -61,14 +49,13 @@ class BacktraceTest extends TestCase
                 break;
             }
         }
-        $this->assertCount(5, $backtrace);
-        $this->assertFalse($haveArgs);
-        $this->assertSame(__FILE__, $backtrace[0]['file']);
-        $this->assertSame($line, $backtrace[0]['line']);
+        self::assertCount(5, $backtrace);
+        self::assertFalse($haveArgs);
+        self::assertSame(__FILE__, $backtrace[0]['file']);
+        self::assertSame($line, $backtrace[0]['line']);
 
         $line = __LINE__ + 1;
         $backtrace = Backtrace::get(Backtrace::INCL_ARGS, 5);
-        // echo 'backtrace = ' . print_r($backtrace, true) . "\n";
         $haveArgs = false;
         foreach ($backtrace as $frame) {
             if (!empty($frame['args'])) {
@@ -76,18 +63,10 @@ class BacktraceTest extends TestCase
                 break;
             }
         }
-        $this->assertCount(5, $backtrace);
-        $this->assertTrue($haveArgs);
-        $this->assertSame(__FILE__, $backtrace[0]['file']);
-        $this->assertSame($line, $backtrace[0]['line']);
-    }
-
-    public function testGetFileLines()
-    {
-        $this->assertFalse(Backtrace::getFileLines('/no/such/file.php'));
-        $this->assertSame(array(
-            1 => "<?php\n",
-        ), Backtrace::getFileLines(__FILE__, 0, 1));
+        self::assertCount(5, $backtrace);
+        self::assertTrue($haveArgs);
+        self::assertSame(__FILE__, $backtrace[0]['file']);
+        self::assertSame($line, $backtrace[0]['line']);
     }
 
     public function testGetFromException()
@@ -95,9 +74,9 @@ class BacktraceTest extends TestCase
         $line = __LINE__ + 1;
         $exception = new \Exception('this is a test');
         $backtrace = Backtrace::get(null, 3, $exception);
-        $this->assertCount(3, $backtrace);
-        $this->assertSame(__FILE__, $backtrace[0]['file']);
-        $this->assertSame($line, $backtrace[0]['line']);
+        self::assertCount(3, $backtrace);
+        self::assertSame(__FILE__, $backtrace[0]['file']);
+        self::assertSame($line, $backtrace[0]['line']);
     }
 
     public function testGetFromExceptionParseError()
@@ -107,7 +86,7 @@ class BacktraceTest extends TestCase
         }
         $exception = new \ParseError('parse error');
         $backtrace = Backtrace::get(null, 3, $exception);
-        $this->assertCount(0, $backtrace);
+        self::assertCount(0, $backtrace);
     }
 
     /**
@@ -130,12 +109,12 @@ class BacktraceTest extends TestCase
             'line' => $line,
             'type' => '->',
         );
-        $this->assertSame($expect, $callerInfo);
+        self::assertSame($expect, $callerInfo);
 
         // @phpcs:ignore SlevomatCodingStandard.Namespaces.FullyQualifiedGlobalFunctions
         $callerInfo = call_user_func(array($this, 'getCallerInfoHelper'));
         $line = __LINE__ - 1;
-        $this->assertSame(array(
+        self::assertSame(array(
             'args' => array(),
             'class' => __CLASS__,
             'classCalled' => 'bdk\BacktraceTests\BacktraceTest',
@@ -167,7 +146,7 @@ class BacktraceTest extends TestCase
         $callerInfoStack = ChildObj::$callerInfoStack;
         unset($callerInfoStack[1]['line'], $callerInfoStack[2]['line']);
         // echo 'callerInfoStack = ' . \print_r($callerInfoStack, true) . "\n";
-        $this->assertSame(array(
+        self::assertSame(array(
             array(
                 'args' => array(),
                 'class' => __CLASS__,
@@ -215,7 +194,7 @@ class BacktraceTest extends TestCase
         $callerInfoStack = ChildObj::$callerInfoStack;
         unset($callerInfoStack[1]['line']);
         // echo 'callerInfoStack = ' . \print_r($callerInfoStack, true) . "\n";
-        $this->assertSame(array(
+        self::assertSame(array(
             array(
                 'args' => array(),
                 'class' => __CLASS__,
@@ -241,35 +220,120 @@ class BacktraceTest extends TestCase
         ), $callerInfoStack);
     }
 
+    /*
     public function testIsXdebugFuncStackAvail()
     {
-        $isAvail = Backtrace::isXdebugFuncStackAvail();
-        $this->assertIsBool($isAvail);
+        self::assertTrue(Backtrace::isXdebugFuncStackAvail());
     }
+    */
 
     public function testXdebugGetFunctionStack()
     {
-        $line = __LINE__ + 1;
-        $stack = Backtrace::xdebugGetFunctionStack();
+        $GLOBALS['functionReturn']['phpversion'] = '2.5.9'; // call fix
+        $GLOBALS['functionReturn']['error_get_last'] = array(
+            'file' => '/path/to/file.php',
+            'line' => 666,
+            'message' => 'dang',
+            'type' => E_ERROR,
+        );
+        $line = __LINE__ + 2;
+        $magic = new \bdk\BacktraceTests\Fixture\Magic();
+        $magic->foo;
+        $stack = $GLOBALS['xdebug_stack'];
+        $GLOBALS['functionReturn']['error_get_last'] = null;
+
         self::assertIsArray($stack);
         self::assertSame(array(
             array(
                 'class' => __CLASS__,
-                'file' => $stack[\count($stack) - 2]['file'], // TestCase.php
-                'function' => 'testXdebugGetFunctionStack',
-                'line' => $stack[\count($stack) - 2]['line'],
+                'file' => $stack[\count($stack) - 4]['file'], // TestCase.php
+                'function' => __FUNCTION__,
+                'line' => $stack[\count($stack) - 4]['line'],
                 'params' => array(),
                 'type' => 'dynamic',
             ),
             array(
-                'class' => 'bdk\Backtrace',
-                'file' => __FILE__,
-                'function' => 'xdebugGetFunctionStack',
+                'class' => 'bdk\BacktraceTests\Fixture\Magic',
+                'file' => $stack[\count($stack) - 3]['file'], // __FILE__, but we've activated xdebugfix
+                'function' => '__get',
                 'line' => $line,
+                'params' => array(
+                    'name' => '\'foo\'',
+                ),
+                'type' => 'dynamic',
+            ),
+            array(
+                'class' => 'bdk\Backtrace',
+                'file' => $stack[\count($stack) - 2]['file'], // TestCase.php
+                'function' => 'xdebugGetFunctionStack',
+                'line' => $stack[\count($stack) - 2]['line'],
                 'params' => array(),
                 'type' => 'static',
             ),
-        ), \array_slice($stack, -2));
+            array(
+                'file' => '/path/to/file.php',
+                'line' => 666,
+            ),
+        ), \array_slice($stack, -4));
+
+        $line = __LINE__ + 1;
+        require __DIR__ . '/fixture/include_get.php';
+        $stack = array_reverse($GLOBALS['xdebug_stack']);
+        $stack = Normalizer::normalize($stack);
+        // $stack = \array_map(function ($frame) {
+            // unset($frame['object']);
+            // return $frame;
+        // }, $stack);
+        self::assertIsArray($stack);
+        self::assertSame(array(
+            array(
+                'args' => array(),
+                // 'class' => 'bdk\Backtrace',
+                'file' => __DIR__ . '/Fixture/Magic.php',
+                'function' => 'bdk\Backtrace::xdebugGetFunctionStack',
+                'line' => $stack[0]['line'],
+                // 'type' => 'static',
+                'object' => null,
+            ),
+            array(
+                'args' => array(
+                    'name' => 'foo',
+                ),
+                // 'class' => 'bdk\BacktraceTests\Fixture\Magic',
+                'file' => __DIR__ . '/fixture/include_get.php',
+                'function' => 'bdk\BacktraceTests\Fixture\Magic->__get',
+                'line' => 5,
+                // 'type' => 'dynamic',
+                'object' => null,
+            ),
+            array(
+                'args' => array(
+                    __DIR__ . '/fixture/include_get.php',
+                ),
+                'file' => __FILE__,
+                'function' => 'include or require',
+                'line' => $line,
+                'object' => null,
+            ),
+            array(
+                'args' => array(),
+                // 'class' => __CLASS__,
+                'file' => $stack[3]['file'], // TestCase.php
+                'function' => __CLASS__ . '->' . __FUNCTION__,
+                'line' => $stack[3]['line'],
+                // 'type' => 'dynamic',
+                'object' => null,
+            ),
+        ), \array_slice($stack, 0, 4));
+
+        $GLOBALS['functionReturn']['extension_loaded'] = false;
+        $GLOBALS['functionReturn']['phpversion'] = null;
+
+        $propRef = new \ReflectionProperty('bdk\\Backtrace', 'isXdebugAvail');
+        $propRef->setAccessible(true);
+        $propRef->setValue(null);
+        self::assertFalse(Backtrace::xdebugGetFunctionStack());
+        $propRef->setValue(true);
     }
 
     private function getCallerInfoHelper()

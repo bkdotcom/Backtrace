@@ -2,6 +2,7 @@
 
 namespace bdk\BacktraceTests;
 
+use bdk\Backtrace;
 use bdk\Backtrace\Normalizer;
 use bdk\BacktraceTests\PolyFill\AssertionTrait;
 use PHPUnit\Framework\TestCase;
@@ -19,7 +20,11 @@ class NormalizerTest extends TestCase
 
         $trace = $GLOBALS['debug_backtrace'];
         $trace = Normalizer::normalize($trace);
+
+        self::assertSame(__FILE__, $trace[0]['file']);
         self::assertSame('{closure}', $trace[0]['function']);
+
+        self::assertSame(__FILE__, $trace[1]['file']);
         self::assertSame('bdk\BacktraceTests\func2', $trace[1]['function']);
         self::assertSame(array(
             "they're",
@@ -28,32 +33,57 @@ class NormalizerTest extends TestCase
             null,
             true,
         ), $trace[1]['args']);
+
+        self::assertSame(__FILE__, $trace[2]['file']);
         self::assertSame('bdk\BacktraceTests\func1', $trace[2]['function']);
+
+        self::assertSame(__CLASS__ . '->' . __FUNCTION__, $trace[3]['function']);
 
         $trace = \array_reverse($GLOBALS['xdebug_trace']);
         $trace = Normalizer::normalize($trace);
 
-        self::assertSame('{closure}', $trace[0]['function']);
-        self::assertSame('bdk\BacktraceTests\func2', $trace[1]['function']);
+        self::assertSame(__FILE__, $trace[0]['file']);
+        self::assertSame('bdk\Backtrace::xdebugGetFunctionStack', $trace[0]['function']);
+
+        self::assertSame(__FILE__, $trace[1]['file']);
+        self::assertSame('{closure}', $trace[1]['function']);
+
+        self::assertSame(__FILE__, $trace[2]['file']);
+        self::assertSame('bdk\BacktraceTests\func2', $trace[2]['function']);
         self::assertSame(array(
             "they're",
             '"quotes"',
             42,
             null,
             true,
-        ), $trace[1]['args']);
-        self::assertSame('bdk\BacktraceTests\func1', $trace[2]['function']);
+        ), $trace[2]['args']);
+
+        self::assertSame(__FILE__, $trace[3]['file']);
+        self::assertSame('bdk\BacktraceTests\func1', $trace[3]['function']);
+
+        self::assertSame(__CLASS__ . '->' . __FUNCTION__, $trace[4]['function']);
     }
 
     public function testNormalizeInclude()
     {
-        self::assertTrue(true);
+        $filepath = __DIR__ . '/Fixture/include.php';
 
-        require __DIR__ . '/Fixture/include.php';
+        require $filepath;
 
+        $this->assertIncludeDebugBacktrace($filepath);
+        $this->assertIncludeXdebug($filepath);
+    }
+
+    protected function assertIncludeDebugBacktrace($filepath)
+    {
         $trace = $GLOBALS['debug_backtrace'];
         $trace = Normalizer::normalize($trace);
+
+        self::assertSame($filepath, $trace[0]['file']);
         self::assertSame('{closure}', $trace[0]['function']);
+        self::assertIsInt($trace[0]['evalLine']);
+
+        self::assertSame($filepath, $trace[1]['file']);
         self::assertSame('func4', $trace[1]['function']);
         self::assertSame(array(
             "they're",
@@ -62,24 +92,55 @@ class NormalizerTest extends TestCase
             null,
             true,
         ), $trace[1]['args']);
-        self::assertSame('func3', $trace[2]['function']);
-        self::assertSame('eval', $trace[3]['function']);
-        self::assertSame('require', $trace[4]['function']);
+        self::assertIsInt($trace[1]['evalLine']);
 
+        self::assertSame($filepath, $trace[2]['file']);
+        self::assertSame('func3', $trace[2]['function']);
+        self::assertIsInt($trace[2]['evalLine']);
+
+        self::assertSame($filepath, $trace[3]['file']);
+        self::assertSame('eval', $trace[3]['function']);
+        self::assertSame(array(), $trace[3]['args']); // debug_backtrace doesn't provide eval'd code
+
+        self::assertSame(__FILE__, $trace[4]['file']);
+        self::assertSame('require', $trace[4]['function']);
+        self::assertSame($filepath, $trace[4]['args'][0]);
+    }
+
+    protected function assertIncludeXdebug($filepath)
+    {
         $trace = \array_reverse($GLOBALS['xdebug_trace']);
         $trace = Normalizer::normalize($trace);
-        self::assertSame('{closure}', $trace[0]['function']);
-        self::assertSame('func4', $trace[1]['function']);
+
+        self::assertSame($filepath, $trace[0]['file']);
+        self::assertSame('bdk\\Backtrace::xdebugGetFunctionStack', $trace[0]['function']);
+
+        self::assertSame($filepath, $trace[1]['file']);
+        self::assertSame('{closure}', $trace[1]['function']);
+        self::assertIsInt($trace[1]['evalLine']);
+
+        self::assertSame($filepath, $trace[2]['file']);
+        self::assertSame('func4', $trace[2]['function']);
         self::assertSame(array(
             "they're",
             '"quotes"',
             42,
             null,
             true,
-        ), $trace[1]['args']);
-        self::assertSame('func3', $trace[2]['function']);
-        self::assertSame('eval', $trace[3]['function']);
-        self::assertSame('include or require', $trace[4]['function']);
+        ), $trace[2]['args']);
+        self::assertIsInt($trace[2]['evalLine']);
+
+        self::assertSame($filepath, $trace[3]['file']);
+        self::assertSame('func3', $trace[3]['function']);
+        self::assertIsInt($trace[3]['evalLine']);
+
+        self::assertSame($filepath, $trace[4]['file']);
+        self::assertSame('eval', $trace[4]['function']);
+        self::assertTrue(\strpos($trace[4]['args'][0], 'func3();') === 0);
+
+        self::assertSame(__FILE__, $trace[5]['file']);
+        self::assertSame('include or require', $trace[5]['function']);
+        self::assertSame($filepath, $trace[5]['args'][0]);
     }
 }
 
@@ -91,7 +152,7 @@ function func1()
 function func2()
 {
     $closure = function () {
-        $GLOBALS['xdebug_trace'] = \xdebug_get_function_stack();
+        $GLOBALS['xdebug_trace'] = Backtrace::xdebugGetFunctionStack();
         $GLOBALS['debug_backtrace'] = \debug_backtrace();
     };
     $closure();
