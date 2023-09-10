@@ -57,7 +57,7 @@ class Normalizer
             }
             if ($frame['params']) {
                 // xdebug_get_function_stack
-                $frame['args'] = self::normalizeXdebugArgs($frame['params']);
+                $frame['args'] = self::normalizeXdebugParams($frame['params']);
             }
             $frame = \array_intersect_key($frame, $frameKeysKeep);
             \ksort($frame);
@@ -139,18 +139,26 @@ class Normalizer
     /**
      * de-stringify most params
      *
-     * @param array $args Xdebug frame "params"
+     * @param array $params Xdebug frame "params"
      *
      * @return array
      */
-    private static function normalizeXdebugArgs($args)
+    private static function normalizeXdebugParams($params)
     {
         $map = array(
             'FALSE' => false,
             'NULL' => null,
             'TRUE' => true,
         );
-        return \array_map(static function ($param) use ($map) {
+        $i = 0;
+        // some versions of xdebug have the wrong numeric key index...
+        //   reindex
+        $keys = \array_map(static function ($key) use (&$i) {
+            return \is_string($key)
+                ? $key
+                : $i++;
+        }, \array_keys($params));
+        $values = \array_map(static function ($param) use ($map) {
             if ($param[0] === "'") {
                 return \substr(\stripslashes($param), 1, -1);
             }
@@ -160,6 +168,7 @@ class Normalizer
             return \array_key_exists($param, $map)
                 ? $map[$param]
                 : $param;
-        }, $args);
+        }, $params);
+        return \array_combine($keys, $values);
     }
 }
