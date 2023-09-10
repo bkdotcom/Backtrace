@@ -277,7 +277,7 @@ class BacktraceTest extends TestCase
         ), \array_slice($stack, -4));
 
         $line = __LINE__ + 1;
-        require __DIR__ . '/fixture/include_get.php';
+        require __DIR__ . '/Fixture/include_get.php';
         $stack = array_reverse($GLOBALS['xdebug_stack']);
         $stack = Normalizer::normalize($stack);
         // $stack = \array_map(function ($frame) {
@@ -300,7 +300,7 @@ class BacktraceTest extends TestCase
                     'name' => 'foo',
                 ),
                 // 'class' => 'bdk\BacktraceTests\Fixture\Magic',
-                'file' => __DIR__ . '/fixture/include_get.php',
+                'file' => __DIR__ . '/Fixture/include_get.php',
                 'function' => 'bdk\BacktraceTests\Fixture\Magic->__get',
                 'line' => 5,
                 // 'type' => 'dynamic',
@@ -308,7 +308,7 @@ class BacktraceTest extends TestCase
             ),
             array(
                 'args' => array(
-                    __DIR__ . '/fixture/include_get.php',
+                    __DIR__ . '/Fixture/include_get.php',
                 ),
                 'file' => __FILE__,
                 'function' => 'include or require',
