@@ -1,6 +1,6 @@
 <?php
 
-namespace bdk;
+namespace bdk\Backtrace;
 
 $GLOBALS['functionReturn'] = array(
     'error_get_last' => null,

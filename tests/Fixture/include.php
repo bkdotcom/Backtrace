@@ -11,7 +11,7 @@ function func3()
 function func4()
 {
     $closure = static function () {
-        $GLOBALS['xdebug_trace'] = \bdk\Backtrace::xdebugGetFunctionStack();
+        $GLOBALS['xdebug_trace'] = \bdk\Backtrace\Xdebug::getFunctionStack();
         $GLOBALS['debug_backtrace'] = \debug_backtrace();
     };
     $closure();

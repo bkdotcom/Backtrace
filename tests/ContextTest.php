@@ -66,7 +66,7 @@ class ContextTest extends TestCase
         $trace = \array_slice($trace, 0, 6);
         $trace = Backtrace::addContext($trace);
 
-        self::assertSame('bdk\\Backtrace::xdebugGetFunctionStack', $trace[0]['function']);
+        self::assertSame('bdk\\Backtrace\\Xdebug::getFunctionStack', $trace[0]['function']);
         self::assertSame(__DIR__ . '/Fixture/Thing2.php', $trace[0]['file']);
 
         self::assertSame('bdk\BacktraceTests\Fixture\Thing2->c', $trace[1]['function']);

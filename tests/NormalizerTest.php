@@ -2,8 +2,8 @@
 
 namespace bdk\BacktraceTests;
 
-use bdk\Backtrace;
 use bdk\Backtrace\Normalizer;
+use bdk\Backtrace\Xdebug;
 use bdk\BacktraceTests\PolyFill\AssertionTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -43,7 +43,7 @@ class NormalizerTest extends TestCase
         $trace = Normalizer::normalize($trace);
 
         self::assertSame(__FILE__, $trace[0]['file']);
-        self::assertSame('bdk\Backtrace::xdebugGetFunctionStack', $trace[0]['function']);
+        self::assertSame('bdk\\Backtrace\\Xdebug::getFunctionStack', $trace[0]['function']);
 
         self::assertSame(__FILE__, $trace[1]['file']);
         self::assertSame('{closure}', $trace[1]['function']);
@@ -113,7 +113,7 @@ class NormalizerTest extends TestCase
         $trace = Normalizer::normalize($trace);
 
         self::assertSame($filepath, $trace[0]['file']);
-        self::assertSame('bdk\\Backtrace::xdebugGetFunctionStack', $trace[0]['function']);
+        self::assertSame('bdk\\Backtrace\\Xdebug::getFunctionStack', $trace[0]['function']);
 
         self::assertSame($filepath, $trace[1]['file']);
         self::assertSame('{closure}', $trace[1]['function']);
@@ -152,7 +152,7 @@ function func1()
 function func2()
 {
     $closure = function () {
-        $GLOBALS['xdebug_trace'] = Backtrace::xdebugGetFunctionStack();
+        $GLOBALS['xdebug_trace'] = Xdebug::getFunctionStack();
         $GLOBALS['debug_backtrace'] = \debug_backtrace();
     };
     $closure();
