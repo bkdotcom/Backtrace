@@ -5,7 +5,7 @@ namespace bdk\BacktraceTests;
 use bdk\Backtrace;
 use bdk\Backtrace\Normalizer;
 use bdk\Backtrace\SkipInternal;
-use bdk\BacktraceTests\PolyFill\AssertionTrait;
+use bdk\PhpUnitPolyfill\AssertionTrait;
 use PHPUnit\Framework\TestCase;
 
 /**

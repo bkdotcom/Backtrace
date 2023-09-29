@@ -7,7 +7,7 @@ use bdk\Backtrace\Normalizer;
 use bdk\Backtrace\Xdebug;
 use bdk\BacktraceTests\Fixture\ChildObj;
 use bdk\BacktraceTests\Fixture\ParentObj;
-use bdk\BacktraceTests\PolyFill\AssertionTrait;
+use bdk\PhpUnitPolyfill\AssertionTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
