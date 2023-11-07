@@ -19,6 +19,8 @@ class BacktraceTest extends TestCase
 {
     use AssertionTrait;
 
+    protected static $line = 0;
+
     public static function setUpBeforeClass(): void
     {
         $xdebugVer = \phpversion('xdebug');
@@ -128,6 +130,22 @@ class BacktraceTest extends TestCase
         ), $callerInfo);
     }
 
+    public function testGetCallerInfoEval()
+    {
+        $callerInfo = $this->getCallerInfoEval();
+        self::assertSame(array(
+            'args' => array(),
+            'class' => null,
+            'classCalled' => null,
+            'classContext' => null,
+            'evalLine' => 1,
+            'file' => __FILE__,
+            'function' => 'eval',
+            'line' => self::$line,
+            'type' => null,
+        ), $callerInfo);
+    }
+
     public function testGetCallerInfoClassContext()
     {
         /*
@@ -221,7 +239,14 @@ class BacktraceTest extends TestCase
         ), $callerInfoStack);
     }
 
-    private function getCallerInfoHelper()
+    private function getCallerInfoEval()
+    {
+        $php = 'return \bdk\BacktraceTests\BacktraceTest::getCallerInfoHelper();';
+        self::$line = __LINE__ + 1;
+        return eval($php);
+    }
+
+    public static function getCallerInfoHelper()
     {
         return Backtrace::getCallerInfo();
     }
