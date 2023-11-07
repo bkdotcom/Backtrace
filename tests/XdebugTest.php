@@ -27,7 +27,7 @@ class XdebugTest extends TestCase
     {
         $propRef = new \ReflectionProperty('bdk\\Backtrace\\Xdebug', 'isXdebugAvail');
         $propRef->setAccessible(true);
-        $propRef->setValue(null);
+        $propRef->setValue(null, null);
 
         $GLOBALS['functionReturn']['phpversion'] = '2.5.9'; // call fix
         $GLOBALS['functionReturn']['error_get_last'] = array(
@@ -40,9 +40,14 @@ class XdebugTest extends TestCase
         $magic = new \bdk\BacktraceTests\Fixture\Magic();
         $magic->foo;
         $stack = $GLOBALS['xdebug_stack'];
+        self::assertIsArray($stack);
+        $stack = \array_map(static function ($frame) {
+            // xdebug 3.3
+            unset($frame['time'], $frame['memory']);
+            return $frame;
+        }, $stack);
         $GLOBALS['functionReturn']['error_get_last'] = null;
 
-        self::assertIsArray($stack);
         self::assertSame(array(
             array(
                 'class' => __CLASS__,
@@ -80,13 +85,18 @@ class XdebugTest extends TestCase
 
         $line = __LINE__ + 1;
         require __DIR__ . '/Fixture/include_get.php';
-        $stack = array_reverse($GLOBALS['xdebug_stack']);
+        $stack = \array_reverse($GLOBALS['xdebug_stack']);
         $stack = Normalizer::normalize($stack);
+        self::assertIsArray($stack);
+        $stack = \array_map(static function ($frame) {
+            // xdebug 3.3
+            unset($frame['time'], $frame['memory']);
+            return $frame;
+        }, $stack);
         // $stack = \array_map(function ($frame) {
             // unset($frame['object']);
             // return $frame;
         // }, $stack);
-        self::assertIsArray($stack);
         self::assertSame(array(
             array(
                 'args' => array(
@@ -135,8 +145,8 @@ class XdebugTest extends TestCase
 
         $propRef = new \ReflectionProperty('bdk\\Backtrace\\Xdebug', 'isXdebugAvail');
         $propRef->setAccessible(true);
-        $propRef->setValue(null);
+        $propRef->setValue(null, null);
         self::assertFalse(Xdebug::getFunctionStack());
-        $propRef->setValue(true);
+        $propRef->setValue(null, true);
     }
 }

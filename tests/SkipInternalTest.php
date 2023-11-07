@@ -19,7 +19,7 @@ class SkipInternalTest extends TestCase
     {
         $internalClassesRef = new \ReflectionProperty('bdk\\Backtrace\\SkipInternal', 'internalClasses');
         $internalClassesRef->setAccessible(true);
-        $internalClassesRef->setValue(array(
+        $internalClassesRef->setValue(null, array(
             'classes' => array(),
             'levelCurrent' => null,
             'levels' => array(),
