@@ -103,6 +103,7 @@ class XdebugTest extends TestCase
                     'maxDepth' => '???',
                 ),
                 // 'class' => 'bdk\Backtrace',
+                'evalLine' => null,
                 'file' => __DIR__ . '/Fixture/Magic.php',
                 'function' => 'bdk\\Backtrace\\Xdebug::getFunctionStack',
                 'line' => $stack[0]['line'],
@@ -114,6 +115,7 @@ class XdebugTest extends TestCase
                     'name' => 'foo',
                 ),
                 // 'class' => 'bdk\BacktraceTests\Fixture\Magic',
+                'evalLine' => null,
                 'file' => __DIR__ . '/Fixture/include_get.php',
                 'function' => 'bdk\BacktraceTests\Fixture\Magic->__get',
                 'line' => 5,
@@ -124,6 +126,7 @@ class XdebugTest extends TestCase
                 'args' => array(
                     __DIR__ . '/Fixture/include_get.php',
                 ),
+                'evalLine' => null,
                 'file' => __FILE__,
                 'function' => 'include or require',
                 'line' => $line,
@@ -132,6 +135,7 @@ class XdebugTest extends TestCase
             array(
                 'args' => array(),
                 // 'class' => __CLASS__,
+                'evalLine' => null,
                 'file' => $stack[3]['file'], // TestCase.php
                 'function' => __CLASS__ . '->' . __FUNCTION__,
                 'line' => $stack[3]['line'],
