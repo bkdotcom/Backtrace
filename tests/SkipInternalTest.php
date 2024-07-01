@@ -52,7 +52,7 @@ class SkipInternalTest extends TestCase
             // meh
         }
         $this->assertInstanceOf('InvalidArgumentException', $e);
-        $this->assertSame('level must be an integer', $e->getMessage());
+        $this->assertSame('level must be an integer. boolean provided.', $e->getMessage());
     }
 
     public function testRemoveInternalFrames()

@@ -4,7 +4,7 @@
  * @package   Backtrace
  * @author    Brad Kent <bkfake-github@yahoo.com>
  * @license   http://opensource.org/licenses/MIT MIT
- * @copyright 2020-2023 Brad Kent
+ * @copyright 2020-2024 Brad Kent
  * @version   v2.2
  * @link      http://www.github.com/bkdotcom/Backtrace
  */
@@ -16,8 +16,10 @@ namespace bdk\Backtrace;
  */
 class Normalizer
 {
+    /** @var array */
     private static $backtraceTemp = array();
 
+    /** @var array */
     private static $frameDefault = array(
         'args' => array(),
         'evalLine' => null,
@@ -51,7 +53,7 @@ class Normalizer
             $frame = self::normalizeFrameFunction($frame);
             if (\in_array($frame['function'], array('call_user_func', 'call_user_func_array'), true)) {
                 // don't include this frame
-                //   backtrace only includes when used within namespace and not fully-quallified
+                //   backtrace only includes when used within namespace and not fully-qualified
                 //   \call_user_func(); // not in trace... same as calling func directly
                 continue;
             }
@@ -70,13 +72,13 @@ class Normalizer
      * Normalize file value
      *
      * @param array $frame     current frame
-     * @param array $frameNext next frrame
+     * @param array $frameNext next frame
      *
      * @return array
      */
     private static function normalizeFrameFile(array $frame, array &$frameNext)
     {
-        $regexEvaldCode = '/^(.+)\((\d+)\) : eval\(\)\'d code$/';
+        $regexEvalCode = '/^(.+)\((\d+)\) : eval\(\)\'d code$/';
         $matches = array();
         if ($frame['file'] === null) {
             // use file/line from next frame
@@ -85,14 +87,14 @@ class Normalizer
                 \array_intersect_key($frameNext, \array_flip(array('file', 'line')))
             );
         }
-        if (\preg_match($regexEvaldCode, (string) $frame['file'], $matches)) {
+        if (\preg_match($regexEvalCode, (string) $frame['file'], $matches)) {
             // reported line = line within eval
             // line inside paren is the line `eval` is on
             $frame['evalLine'] = $frame['line'];
             $frame['file'] = $matches[1];
             $frame['line'] = (int) $matches[2];
             if (isset($frameNext['include_filename'])) {
-                // xdebug_get_function_stack puts the evaled code in include_filename
+                // xdebug_get_function_stack puts the eval'd code in include_filename
                 $frameNext['params'] = array($frameNext['include_filename']);
                 $frameNext['class'] = null;
                 $frameNext['function'] = 'eval';
@@ -159,15 +161,17 @@ class Normalizer
                 : $i++;
         }, \array_keys($params));
         $values = \array_map(static function ($param) use ($map) {
-            if ($param[0] === "'") {
-                return \substr(\stripslashes($param), 1, -1);
+            if (\is_string($param) === false) {
+                return $param;
             }
-            if (\is_numeric($param)) {
-                return $param * 1;
+            if (\array_key_exists($param, $map)) {
+                $param = $map[$param];
+            } elseif ($param[0] === "'") {
+                $param = \substr(\stripslashes($param), 1, -1);
+            } elseif (\is_numeric($param)) {
+                $param = $param * 1;
             }
-            return \array_key_exists($param, $map)
-                ? $map[$param]
-                : $param;
+            return $param;
         }, $params);
         return \array_combine($keys, $values);
     }

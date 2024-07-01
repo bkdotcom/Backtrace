@@ -4,7 +4,7 @@
  * @package   Backtrace
  * @author    Brad Kent <bkfake-github@yahoo.com>
  * @license   http://opensource.org/licenses/MIT MIT
- * @copyright 2020-2023 Brad Kent
+ * @copyright 2020-2024 Brad Kent
  * @version   v2.2
  * @link      http://www.github.com/bkdotcom/Backtrace
  */
@@ -16,7 +16,9 @@ use bdk\Backtrace\Normalizer;
 use bdk\Backtrace\SkipInternal;
 use bdk\Backtrace\Xdebug;
 use Exception;
+use InvalidArgumentException;
 use ParseError;
+use Throwable;
 
 /**
  * Utility for getting backtrace
@@ -31,6 +33,7 @@ class Backtrace
     const INCL_ARGS = 1;
     const INCL_OBJECT = 2;
 
+    /** @var array */
     protected static $callerInfoDefault = array(
         'args' => array(),
         'class' => null,         // where the method is defined
@@ -45,7 +48,7 @@ class Backtrace
 
     /**
      * Add a new namespace or classname to be used to determine when to
-     * stop iterrating over the backtrace when determining calling info
+     * stop iterating over the backtrace when determining calling info
      *
      * @param array|string $classes classname(s)
      * @param int          $level   "priority".  0 = will never skip
@@ -67,7 +70,7 @@ class Backtrace
      * @param int                   $limit     limit the number of stack frames returned.
      * @param \Exception|\Throwable $exception (optional) Exception from which to get backtrace
      *
-     * @return array
+     * @return array[]
      */
     public static function get($options = 0, $limit = 0, $exception = null)
     {
@@ -76,7 +79,7 @@ class Backtrace
         $trace = $exception
             ? self::getExceptionTrace($exception)
             : (\array_reverse(Xdebug::getFunctionStack() ?: array())
-                ?: \debug_backtrace($debugBacktraceOpts, $limit ? $limit + 2 : 0));
+                ?: \debug_backtrace($debugBacktraceOpts, $limit > 0 ? $limit + 2 : 0));
         $trace = Normalizer::normalize($trace);
         $trace = SkipInternal::removeInternalFrames($trace);
         // keep the calling file & line, but toss the called function (what initiated trace)
@@ -122,7 +125,7 @@ class Backtrace
         $backtrace = \debug_backtrace($phpOptions, 28);
         $backtrace = Normalizer::normalize($backtrace);
         $index = SkipInternal::getFirstIndex($backtrace, $offset);
-        $index = \max($index, 1); // insure we're >= 1
+        $index = \max($index, 1); // ensure we're >= 1
         $return = static::callerInfoBuild(\array_slice($backtrace, $index, 2));
         if (!($options & self::INCL_OBJECT)) {
             unset($return['object']);
@@ -138,7 +141,7 @@ class Backtrace
      * @param array $backtrace backtrace frames
      * @param int   $length    number of lines to include
      *
-     * @return array backtrace
+     * @return array[] backtrace
      */
     public static function addContext(array $backtrace, $length = 19)
     {
@@ -166,7 +169,7 @@ class Backtrace
      *
      * @param array $backtrace backtrace
      *
-     * @return array
+     * @return array[]
      */
     private static function callerInfoBuild(array $backtrace)
     {
@@ -270,7 +273,7 @@ class Backtrace
     /**
      * Convert our additive options to PHP's options
      *
-     * @param int $options bitmask options
+     * @param int|null $options bitmask options
      *
      * @return int
      */

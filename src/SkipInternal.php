@@ -4,7 +4,7 @@
  * @package   Backtrace
  * @author    Brad Kent <bkfake-github@yahoo.com>
  * @license   http://opensource.org/licenses/MIT MIT
- * @copyright 2020-2023 Brad Kent
+ * @copyright 2020-2024 Brad Kent
  * @version   v2.2
  * @link      http://www.github.com/bkdotcom/Backtrace
  */
@@ -12,6 +12,7 @@
 namespace bdk\Backtrace;
 
 use InvalidArgumentException;
+use ReflectionFunction;
 
 /**
  * Utility for Skipping over frames "internal" to debugger or framework
@@ -23,9 +24,7 @@ use InvalidArgumentException;
  */
 class SkipInternal
 {
-    /**
-     * @var array
-     */
+    /** @var array<string,mixed> */
     private static $internalClasses = array(
         // classes/namespaces
         // the lower the number, the more we'll enforce skipping
@@ -39,11 +38,12 @@ class SkipInternal
         'regex' => null,
     );
 
+    /** @var non-empty-string */
     private static $classMethodRegex = '/^(?<class>\S+)(?<type>::|->)(?<method>\S+)$/';
 
     /**
      * Add a new namespace or classname to be used to determine when to
-     * stop iterrating over the backtrace when determining calling info
+     * stop iterating over the backtrace when determining calling info
      *
      * @param array|string $classes classname(s)
      * @param int          $level   "priority"
@@ -54,7 +54,10 @@ class SkipInternal
     public static function addInternalClass($classes, $level = 0)
     {
         if (\is_int($level) === false) {
-            throw new InvalidArgumentException(\sprintf('level must be an integer'));
+            throw new InvalidArgumentException(\sprintf(
+                'level must be an integer. %s provided.',
+                \gettype($level)
+            ));
         }
         if (\is_array($classes) === false) {
             $classes = array($classes => $level);
@@ -97,7 +100,7 @@ class SkipInternal
                 : 0;
         }
         $i--;
-        $i = \max($i, 0); // insure we're >= 0
+        $i = \max($i, 0); // ensure we're >= 0
         return isset($backtrace[$i + $offset])
             ? $i + $offset
             : $i;
@@ -192,6 +195,25 @@ class SkipInternal
     }
 
     /**
+     * Checks whether the function is internal, as opposed to user-defined.
+     *
+     * @param string $function Function name
+     *
+     * @return bool
+     */
+    private static function isPhpDefinedFunction($function)
+    {
+        if (\in_array($function, array('include', 'include_once', 'include or require', 'require', 'require_once'), true)) {
+            return true;
+        }
+        if (\function_exists($function) === false) {
+            return false;
+        }
+        $refFunction = new ReflectionFunction($function);
+        return $refFunction->isInternal();
+    }
+
+    /**
      * Test if frame is skippable
      *
      * "Skippable" if
@@ -207,7 +229,7 @@ class SkipInternal
     {
         $class = self::getClass($frame);
         if (!$class) {
-            return true;
+            return self::isPhpDefinedFunction((string) $frame['function']);
         }
         if (\preg_match(static::$internalClasses['regex'], $class)) {
             return true;
@@ -218,8 +240,8 @@ class SkipInternal
     /**
      * Test frame against internal classes
      *
-     * @param classname $class    class name
-     * @param int       $levelMax MAximum level
+     * @param class-string $class    class name
+     * @param int          $levelMax MAximum level
      *
      * @return bool
      */
