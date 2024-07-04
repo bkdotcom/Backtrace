@@ -1,6 +1,6 @@
 <?php
 
-namespace bdk\BacktraceTests;
+namespace bdk\Test\Backtrace;
 
 use bdk\Backtrace\Normalizer;
 use bdk\Backtrace\Xdebug;
@@ -25,7 +25,7 @@ class NormalizerTest extends TestCase
         self::assertSame('{closure}', $trace[0]['function']);
 
         self::assertSame(__FILE__, $trace[1]['file']);
-        self::assertSame('bdk\BacktraceTests\func2', $trace[1]['function']);
+        self::assertSame('bdk\Test\Backtrace\func2', $trace[1]['function']);
         self::assertSame(array(
             "they're",
             '"quotes"',
@@ -35,7 +35,7 @@ class NormalizerTest extends TestCase
         ), $trace[1]['args']);
 
         self::assertSame(__FILE__, $trace[2]['file']);
-        self::assertSame('bdk\BacktraceTests\func1', $trace[2]['function']);
+        self::assertSame('bdk\Test\Backtrace\func1', $trace[2]['function']);
 
         self::assertSame(__CLASS__ . '->' . __FUNCTION__, $trace[3]['function']);
 
@@ -49,7 +49,7 @@ class NormalizerTest extends TestCase
         self::assertSame('{closure}', $trace[1]['function']);
 
         self::assertSame(__FILE__, $trace[2]['file']);
-        self::assertSame('bdk\BacktraceTests\func2', $trace[2]['function']);
+        self::assertSame('bdk\Test\Backtrace\func2', $trace[2]['function']);
         self::assertSame(array(
             "they're",
             '"quotes"',
@@ -59,7 +59,7 @@ class NormalizerTest extends TestCase
         ), $trace[2]['args']);
 
         self::assertSame(__FILE__, $trace[3]['file']);
-        self::assertSame('bdk\BacktraceTests\func1', $trace[3]['function']);
+        self::assertSame('bdk\Test\Backtrace\func1', $trace[3]['function']);
 
         self::assertSame(__CLASS__ . '->' . __FUNCTION__, $trace[4]['function']);
     }
@@ -112,6 +112,8 @@ class NormalizerTest extends TestCase
         $trace = \array_reverse($GLOBALS['xdebug_trace']);
         $trace = Normalizer::normalize($trace);
 
+        var_dump($trace);
+
         self::assertSame($filepath, $trace[0]['file']);
         self::assertSame('bdk\\Backtrace\\Xdebug::getFunctionStack', $trace[0]['function']);
 
@@ -146,7 +148,7 @@ class NormalizerTest extends TestCase
 
 function func1()
 {
-    call_user_func_array('bdk\BacktraceTests\func2', array("they're", '"quotes"', 42, null, true));
+    call_user_func_array('bdk\Test\Backtrace\func2', array("they're", '"quotes"', 42, null, true));
 }
 
 function func2()

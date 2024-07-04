@@ -1,6 +1,6 @@
 <?php
 
-namespace bdk\BacktraceTests;
+namespace bdk\Test\Backtrace;
 
 use bdk\Backtrace;
 use bdk\Backtrace\Normalizer;
@@ -15,10 +15,13 @@ class SkipInternalTest extends TestCase
 {
     use AssertionTrait;
 
+    protected $internalClassesBackup = array();
+
     public function setUp(): void
     {
         $internalClassesRef = new \ReflectionProperty('bdk\\Backtrace\\SkipInternal', 'internalClasses');
         $internalClassesRef->setAccessible(true);
+        $this->internalClassesBackup = $internalClassesRef->getValue();
         $internalClassesRef->setValue(null, array(
             'classes' => array(),
             'levelCurrent' => null,
@@ -28,6 +31,13 @@ class SkipInternalTest extends TestCase
         SkipInternal::addInternalClass('bdk\\Backtrace');
         SkipInternal::addInternalClass('ReflectionMethod');
         SkipInternal::addInternalClass('PHPUnit', 1);
+    }
+
+    public function tearDown(): void
+    {
+        $internalClassesRef = new \ReflectionProperty('bdk\\Backtrace\\SkipInternal', 'internalClasses');
+        $internalClassesRef->setAccessible(true);
+        $internalClassesRef->setValue(null, $this->internalClassesBackup);
     }
 
     public function testAddInternalClass()
@@ -57,14 +67,14 @@ class SkipInternalTest extends TestCase
 
     public function testRemoveInternalFrames()
     {
-        SkipInternal::addInternalClass('bdk\\BacktraceTests\\Fixture\\SkipMe');
+        SkipInternal::addInternalClass('bdk\\Test\\Backtrace\\Fixture\\SkipMe');
 
         $line = __LINE__ + 2;
         $closure = static function ($php) {
             eval($php);
         };
         $closure('
-            $thing = new \bdk\BacktraceTests\Fixture\SkipMe\Thing();
+            $thing = new \bdk\Test\Backtrace\Fixture\SkipMe\Thing();
             $thing->a();
         ');
         $trace = $GLOBALS['debug_backtrace'];
@@ -75,22 +85,22 @@ class SkipInternalTest extends TestCase
             'args' => array(),
             'evalLine' => 3,
             'file' => __FILE__,
-            'function' => 'bdk\BacktraceTests\Fixture\SkipMe\Thing->a',
+            'function' => 'bdk\Test\Backtrace\Fixture\SkipMe\Thing->a',
             'line' => $line,
         ), \array_diff_key($trace[0], \array_flip(array('object'))));
-        self::assertInstanceOf('bdk\BacktraceTests\Fixture\SkipMe\Thing', $trace[0]['object']);
+        self::assertInstanceOf('bdk\Test\Backtrace\Fixture\SkipMe\Thing', $trace[0]['object']);
     }
 
     public function testRemoveInternalFramesSubclass()
     {
-        SkipInternal::addInternalClass('bdk\\BacktraceTests\\Fixture\\SkipMe\\Thing');
+        SkipInternal::addInternalClass('bdk\\Test\\Backtrace\\Fixture\\SkipMe\\Thing');
 
         $line = __LINE__ + 2;
         $closure = static function ($php) {
             eval($php);
         };
         $closure('
-            $thing = new \bdk\BacktraceTests\Fixture\Thing2();
+            $thing = new \bdk\Test\Backtrace\Fixture\Thing2();
             $thing->a();
         ');
         $trace = $GLOBALS['debug_backtrace'];
@@ -101,15 +111,15 @@ class SkipInternalTest extends TestCase
             'args' => array(),
             'evalLine' => 3,
             'file' => __FILE__,
-            'function' => 'bdk\BacktraceTests\Fixture\Thing2->a',
+            'function' => 'bdk\Test\Backtrace\Fixture\Thing2->a',
             'line' => $line,
         ), \array_diff_key($trace[0], \array_flip(array('object'))));
-        self::assertInstanceOf('bdk\BacktraceTests\Fixture\Thing2', $trace[0]['object']);
+        self::assertInstanceOf('bdk\Test\Backtrace\Fixture\Thing2', $trace[0]['object']);
     }
 
     public function testRemoveInternalFramesAllInternal()
     {
-        SkipInternal::addInternalClass('bdk\\BacktraceTests');
+        SkipInternal::addInternalClass('bdk\\Test\\Backtrace');
 
         $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         $trace = Normalizer::normalize($trace);
@@ -133,19 +143,19 @@ class SkipInternalTest extends TestCase
 
     public function testIsSkippableMagic()
     {
-        $magic = new \bdk\BacktraceTests\Fixture\Magic();
+        $magic = new \bdk\Test\Backtrace\Fixture\Magic();
         $magic->test();
 
         $trace = $GLOBALS['debug_backtrace'];
         $trace = Normalizer::normalize($trace);
         $trace = SkipInternal::removeInternalFrames($trace, 5);
 
-        self::assertSame('bdk\BacktraceTests\Fixture\Magic->__call', $trace[0]['function']);
+        self::assertSame('bdk\Test\Backtrace\Fixture\Magic->__call', $trace[0]['function']);
     }
 
     public function testIsSkippableInvoke()
     {
-        $magic = new \bdk\BacktraceTests\Fixture\Magic();
+        $magic = new \bdk\Test\Backtrace\Fixture\Magic();
         $refMethod = new \ReflectionMethod($magic, 'secret');
         $refMethod->setAccessible(true);
         $refMethod->invoke($magic);
@@ -154,7 +164,7 @@ class SkipInternalTest extends TestCase
         $trace = Normalizer::normalize($trace);
         $trace = SkipInternal::removeInternalFrames($trace);
 
-        self::assertSame('bdk\BacktraceTests\Fixture\Magic->secret', $trace[0]['function']);
+        self::assertSame('bdk\Test\Backtrace\Fixture\Magic->secret', $trace[0]['function']);
     }
 
     protected static function dumpTrace($label, $trace, $limit = 0)

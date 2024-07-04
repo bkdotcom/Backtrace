@@ -1,13 +1,11 @@
 <?php
 
-namespace bdk\BacktraceTests;
+namespace bdk\Test\Backtrace;
 
 use bdk\Backtrace;
-use bdk\Backtrace\Normalizer;
-use bdk\Backtrace\Xdebug;
-use bdk\BacktraceTests\Fixture\ChildObj;
-use bdk\BacktraceTests\Fixture\ParentObj;
 use bdk\PhpUnitPolyfill\AssertionTrait;
+use bdk\Test\Backtrace\Fixture\ChildObj;
+use bdk\Test\Backtrace\Fixture\ParentObj;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -104,8 +102,8 @@ class BacktraceTest extends TestCase
         $expect = array(
             'args' => array(),
             'class' => __CLASS__,
-            'classCalled' => 'bdk\BacktraceTests\BacktraceTest',
-            'classContext' => 'bdk\BacktraceTests\BacktraceTest',
+            'classCalled' => 'bdk\Test\Backtrace\BacktraceTest',
+            'classContext' => 'bdk\Test\Backtrace\BacktraceTest',
             'evalLine' => null,
             'file' => __FILE__,
             'function' => __FUNCTION__,
@@ -120,8 +118,8 @@ class BacktraceTest extends TestCase
         self::assertSame(array(
             'args' => array(),
             'class' => __CLASS__,
-            'classCalled' => 'bdk\BacktraceTests\BacktraceTest',
-            'classContext' => 'bdk\BacktraceTests\BacktraceTest',
+            'classCalled' => 'bdk\Test\Backtrace\BacktraceTest',
+            'classContext' => 'bdk\Test\Backtrace\BacktraceTest',
             'evalLine' => null,
             'file' => __FILE__,
             'function' => __FUNCTION__,
@@ -149,8 +147,8 @@ class BacktraceTest extends TestCase
     public function testGetCallerInfoClassContext()
     {
         /*
-        \bdk\BacktraceTests\Fixture\ChildObj::methodStatic();
-        $callerInfo = \bdk\BacktraceTests\Fixture\ChildObj::$callerInfo;
+        \bdk\Test\Backtrace\Fixture\ChildObj::methodStatic();
+        $callerInfo = \bdk\Test\Backtrace\Fixture\ChildObj::$callerInfo;
         echo \print_r($callerInfo, true) . "\n";
         */
 
@@ -202,8 +200,8 @@ class BacktraceTest extends TestCase
         ), $callerInfoStack);
 
         /*
-        \bdk\BacktraceTests\Fixture\ChildObj::method2Static();
-        $callerInfo = \bdk\BacktraceTests\Fixture\ChildObj::$callerInfo;
+        \bdk\Test\Backtrace\Fixture\ChildObj::method2Static();
+        $callerInfo = \bdk\Test\Backtrace\Fixture\ChildObj::$callerInfo;
         echo \print_r($callerInfo, true) . "\n";
         */
 
@@ -241,7 +239,7 @@ class BacktraceTest extends TestCase
 
     private function getCallerInfoEval()
     {
-        $php = 'return \bdk\BacktraceTests\BacktraceTest::getCallerInfoHelper();';
+        $php = 'return \bdk\Test\Backtrace\BacktraceTest::getCallerInfoHelper();';
         self::$line = __LINE__ + 1;
         return eval($php);
     }

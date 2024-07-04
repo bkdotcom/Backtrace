@@ -1,11 +1,10 @@
 <?php
 
-namespace bdk\BacktraceTests\Fixture;
+namespace bdk\Test\Backtrace\Fixture\SkipMe;
 
 use bdk\Backtrace\Xdebug;
-use bdk\BacktraceTests\Fixture\SkipMe\Thing;
 
-class Thing2 extends Thing
+class Thing
 {
 	public function a()
 	{

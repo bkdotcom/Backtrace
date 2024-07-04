@@ -1,6 +1,6 @@
 <?php
 
-namespace bdk\BacktraceTests\Fixture;
+namespace bdk\Test\Backtrace\Fixture;
 
 class ParentObj
 {

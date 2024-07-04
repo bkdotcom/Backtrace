@@ -1,6 +1,6 @@
 <?php
 
-namespace bdk\BacktraceTests;
+namespace bdk\Test\Backtrace;
 
 use bdk\Backtrace\Normalizer;
 use bdk\Backtrace\Xdebug;
@@ -37,7 +37,7 @@ class XdebugTest extends TestCase
             'type' => E_ERROR,
         );
         $line = __LINE__ + 2;
-        $magic = new \bdk\BacktraceTests\Fixture\Magic();
+        $magic = new \bdk\Test\Backtrace\Fixture\Magic();
         $magic->foo;
         $stack = $GLOBALS['xdebug_stack'];
         self::assertIsArray($stack);
@@ -58,7 +58,7 @@ class XdebugTest extends TestCase
                 'type' => 'dynamic',
             ),
             array(
-                'class' => 'bdk\BacktraceTests\Fixture\Magic',
+                'class' => 'bdk\Test\Backtrace\Fixture\Magic',
                 'file' => $stack[\count($stack) - 3]['file'], // __FILE__, but we've activated xdebugfix
                 'function' => '__get',
                 'line' => $line,
@@ -114,10 +114,10 @@ class XdebugTest extends TestCase
                 'args' => array(
                     'name' => 'foo',
                 ),
-                // 'class' => 'bdk\BacktraceTests\Fixture\Magic',
+                // 'class' => 'bdk\Test\Backtrace\Fixture\Magic',
                 'evalLine' => null,
                 'file' => __DIR__ . '/Fixture/include_get.php',
-                'function' => 'bdk\BacktraceTests\Fixture\Magic->__get',
+                'function' => 'bdk\Test\Backtrace\Fixture\Magic->__get',
                 'line' => 5,
                 // 'type' => 'dynamic',
                 'object' => null,

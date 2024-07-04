@@ -18,15 +18,15 @@
     ],
     "autoload": {
         "classmap": [
-            "src/Backtrace.php"
+            "src/Backtrace/Backtrace.php"
         ],
         "psr-4": {
-            "bdk\\Backtrace\\": "src/"
+            "bdk\\Backtrace\\": "src/Backtrace/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "bdk\\BacktraceTests\\": "tests/"
+            "bdk\\Test\\": "tests/"
         }
     },
     "require": {

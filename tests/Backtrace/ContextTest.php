@@ -1,6 +1,6 @@
 <?php
 
-namespace bdk\BacktraceTests;
+namespace bdk\Test\Backtrace;
 
 use bdk\Backtrace;
 use bdk\Backtrace\Normalizer;
@@ -21,7 +21,7 @@ class ContextTest extends TestCase
             eval($php);
         };
         $php = '
-            $thing = new bdk\BacktraceTests\Fixture\Thing2();
+            $thing = new bdk\Test\Backtrace\Fixture\Thing2();
             $thing->a();
         ';
         $line2 = __LINE__ + 1;
@@ -34,7 +34,7 @@ class ContextTest extends TestCase
 
         self::assertSame(__FILE__, $trace[2]['file']);
         self::assertSame($line1, $trace[2]['line']);
-        self::assertSame('bdk\BacktraceTests\Fixture\Thing2->a', $trace[2]['function']);
+        self::assertSame('bdk\Test\Backtrace\Fixture\Thing2->a', $trace[2]['function']);
         self::assertFalse($trace[2]['context']);
 
         self::assertSame(__FILE__, $trace[3]['file']);
@@ -55,7 +55,7 @@ class ContextTest extends TestCase
             eval($php);
         };
         $php = '
-            $thing = new bdk\BacktraceTests\Fixture\Thing2();
+            $thing = new bdk\Test\Backtrace\Fixture\Thing2();
             $thing->a();
         ';
         $line2 = __LINE__ + 1;
@@ -69,13 +69,13 @@ class ContextTest extends TestCase
         self::assertSame('bdk\\Backtrace\\Xdebug::getFunctionStack', $trace[0]['function']);
         self::assertSame(__DIR__ . '/Fixture/Thing2.php', $trace[0]['file']);
 
-        self::assertSame('bdk\BacktraceTests\Fixture\Thing2->c', $trace[1]['function']);
+        self::assertSame('bdk\Test\Backtrace\Fixture\Thing2->c', $trace[1]['function']);
 
-        self::assertSame('bdk\BacktraceTests\Fixture\Thing2->b', $trace[2]['function']);
+        self::assertSame('bdk\Test\Backtrace\Fixture\Thing2->b', $trace[2]['function']);
 
         self::assertSame(__FILE__, $trace[3]['file']);
         self::assertSame($line1, $trace[3]['line']);
-        self::assertSame('bdk\\BacktraceTests\\Fixture\\Thing2->a', $trace[3]['function']);
+        self::assertSame('bdk\\Test\\Backtrace\\Fixture\\Thing2->a', $trace[3]['function']);
         self::assertSame(1, \key($trace[3]['context']));
         self::assertSame($php, \implode('', $trace[3]['context']));
 
