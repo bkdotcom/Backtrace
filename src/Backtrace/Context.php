@@ -4,7 +4,7 @@
  * @package   Backtrace
  * @author    Brad Kent <bkfake-github@yahoo.com>
  * @license   http://opensource.org/licenses/MIT MIT
- * @copyright 2020-2024 Brad Kent
+ * @copyright 2020-2025 Brad Kent
  * @since     v2.2
  * @link      http://www.github.com/bkdotcom/Backtrace
  */
@@ -87,19 +87,7 @@ class Context
     private static function findEvalCode(array $backtrace, $index)
     {
         $backtrace = \array_slice($backtrace, $index);
-        $lines = false;
-        foreach ($backtrace as $frame) {
-            if (!isset($frame['function'])) {
-                break;
-            }
-            if ($frame['function'] !== 'eval') {
-                continue;
-            }
-            $lines = isset($frame['args'][0])
-                ? $frame['args'][0]
-                : false;
-            break;
-        }
+        $lines = self::findEvalCodeLines($backtrace);
         if ($lines === false) {
             return false;
         }
@@ -109,6 +97,29 @@ class Context
             unset($lines[$i + 1]);
         }
         return \array_values($lines);
+    }
+
+    /**
+     * find eval frame and return first arg (the eval'd code)
+     *
+     * @param array $frames backtrace frames
+     *
+     * @return string|false
+     */
+    private static function findEvalCodeLines($frames)
+    {
+        foreach ($frames as $frame) {
+            if (!isset($frame['function'])) {
+                return false;
+            }
+            if ($frame['function'] !== 'eval') {
+                continue;
+            }
+            break;
+        }
+        return isset($frame['args'][0])
+            ? $frame['args'][0]
+            : false;
     }
 
     /**

@@ -30,7 +30,6 @@ class SkipInternalTest extends TestCase
         ));
         SkipInternal::addInternalClass('bdk\\Backtrace');
         SkipInternal::addInternalClass('ReflectionMethod');
-        SkipInternal::addInternalClass('PHPUnit', 1);
     }
 
     public function tearDown(): void
@@ -87,7 +86,7 @@ class SkipInternalTest extends TestCase
             'file' => __FILE__,
             'function' => 'bdk\Test\Backtrace\Fixture\SkipMe\Thing->a',
             'line' => $line,
-        ), \array_diff_key($trace[0], \array_flip(array('object'))));
+        ), \array_diff_key($trace[0], \array_flip(['object'])));
         self::assertInstanceOf('bdk\Test\Backtrace\Fixture\SkipMe\Thing', $trace[0]['object']);
     }
 
@@ -113,13 +112,19 @@ class SkipInternalTest extends TestCase
             'file' => __FILE__,
             'function' => 'bdk\Test\Backtrace\Fixture\Thing2->a',
             'line' => $line,
-        ), \array_diff_key($trace[0], \array_flip(array('object'))));
+        ), \array_diff_key($trace[0], \array_flip(['object'])));
         self::assertInstanceOf('bdk\Test\Backtrace\Fixture\Thing2', $trace[0]['object']);
     }
 
     public function testRemoveInternalFramesAllInternal()
     {
         SkipInternal::addInternalClass('bdk\\Test\\Backtrace');
+        SkipInternal::addInternalClass('PHPUnit_Framework_TestCase', 1);
+        SkipInternal::addInternalClass('PHPUnit_Framework_TestResult', 1);
+        SkipInternal::addInternalClass('PHPUnit_Framework_TestSuite', 1);
+        SkipInternal::addInternalClass('PHPUnit_TextUI_Command', 1);
+        SkipInternal::addInternalClass('PHPUnit_TextUI_TestRunner', 1);
+        SkipInternal::addInternalClass('PHPUnit', 1);
 
         $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         $trace = Normalizer::normalize($trace);
